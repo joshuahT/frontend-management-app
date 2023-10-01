@@ -53,6 +53,6 @@ const Topbar = () => {
             </Box>
         </Box>
     );
-}
+};
 
 export default Topbar;
