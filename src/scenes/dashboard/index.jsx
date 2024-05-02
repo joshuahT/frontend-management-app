@@ -1,6 +1,7 @@
+import OrdersDisplay from "../../components/OrdersActive";
 
 const Dashboard = () => {
-    return <div>Dashboard</div>
+    return <div><OrdersDisplay /></div>
 }
 
 export default Dashboard;
