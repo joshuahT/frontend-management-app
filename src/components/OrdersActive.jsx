@@ -6,7 +6,7 @@ function OrdersDisplay() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:8080/orders/active') // Make sure this URL matches your actual API endpoint
+        fetch('http://localhost:8080/orders/active')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

@@ -7,7 +7,7 @@ function OrderDropdown({ order }) {
 
     return (
         <div>
-            <button onClick={toggleDropdown}>
+            <button class="button-85" onClick={toggleDropdown}>
                 {order.orderName} {isOpen ? '^' : 'v'}
             </button>
             {isOpen && (
