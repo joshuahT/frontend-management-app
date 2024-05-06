@@ -35,7 +35,26 @@ const Order = () => {
     { field: "orderDescription", headerName: "Order Description" },
     { field: "status", headerName: "Status" },
     { field: "price", headerName: "Price" },
-    { field: "cost", headerName: "Cost" }];
+    { field: "cost", headerName: "Cost" },
+    { field: "customerName", headerName: "Customer Name" },
+    { field: "phoneNumber", headerName: "Phone number" },
+    { field: "email", headerName: "Email" },
+    { field: "vehicleDetails", headerName: " Vehicle Details" }];
+
+    const rows = Orders.map(order => ({
+        orderId: order.orderId,
+        orderName: order.orderName,
+        orderDescription: order.orderDescription,
+        status: order.status ? "InActive" : "Active",
+        price: order.price || "N/A",
+        cost: order.cost || "N/A",
+        customerName: order.customer ? order.customer.name : "N/A",
+        phoneNumber: order.customer ? order.customer.phoneNumber : "N/A",
+        email: order.customer ? order.customer.email : "N/A",
+        vehicleDetails: order.customer && order.customer.vehicles.length > 0 ? // Extract vehicle details
+            `${order.customer.vehicles[0].make} ${order.customer.vehicles[0].model} (${order.customer.vehicles[0].year}) - ${order.customer.vehicles[0].licensePlate}` :
+            "N/A",
+    }));
 
     return (
 
@@ -43,7 +62,7 @@ const Order = () => {
             <Header title="Orders" subtitle="All Orders"></Header>
             <Box>
                 <DataGrid
-                    rows={Orders}
+                    rows={rows}
                     columns={columns}
                     getRowId={(row) => row.orderId}
                 />
