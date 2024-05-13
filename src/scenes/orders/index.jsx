@@ -7,15 +7,20 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
 import OrdersDisplay from "../../components/OrdersActive";
 import React, { useState, useEffect } from 'react';
+import IconButton from "@mui/material/IconButton";
 
 
 const Order = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [Orders, SetOrders] = useState([]);
+    const [active, setActive] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:8080/orders/active')
+
+        const endpoint = active ? 'http://localhost:8080/orders/active' : 'http://localhost:8080/orders/past';
+
+        fetch(endpoint)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -28,7 +33,7 @@ const Order = () => {
             .catch(error => {
                 console.error('Error fetching data: ', error);
             })
-    })
+    }, [active])
 
     const columns = [{ field: "orderId", headerName: "ID" },
     { field: "orderName", headerName: "Order Name" },
@@ -60,6 +65,8 @@ const Order = () => {
 
         <Box>
             <Header title="Orders" subtitle="All Orders"></Header>
+            <IconButton onClick={() => setActive(true)}>Active</IconButton>
+            <IconButton onClick={() => setActive(false)}>Past</IconButton>
             <Box>
                 <DataGrid
                     rows={rows}
@@ -67,7 +74,7 @@ const Order = () => {
                     getRowId={(row) => row.orderId}
                 />
             </Box>
-        </Box>
+        </Box >
 
         // <div>
         //     <OrdersDisplay />
