@@ -1,4 +1,4 @@
-import { Box, Typography, useTheme, Grid } from "@mui/material";
+import { Box, Typography, useTheme, Grid, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
@@ -9,6 +9,29 @@ const Order = () => {
     const colors = tokens(theme.palette.mode);
     const [Orders, SetOrders] = useState([]);
     const [active, setActive] = useState(true);
+    const [openAddDialog, setOpenAddDialog] = useState(false);
+    const [customer, setCustomer] = useState([]);
+    const [formData, setFormData] = useState({
+        orderName: '',
+        orderDescription: '',
+        selectedCustomer: '',
+        selectedVehicle: '',
+    });
+    const [newCustomer, setNewCustomer] = useState({
+        name: '',
+        phoneNumber: '',
+        email: '',
+        address: '',
+    });
+    const [newVehicle, setNewVehicle] = useState({
+        make: '',
+        model: '',
+        year: '',
+        licensePlate: '',
+    })
+
+    const [openAddCustomer, setOpenAddCustomer] = useState(false);
+    const [openAddVehicle, setOpenAddVehicle] = useState(false);
 
     useEffect(() => {
         const endpoint = active ? 'http://localhost:8080/orders/active' : 'http://localhost:8080/orders/past';
@@ -27,6 +50,22 @@ const Order = () => {
                 console.error('Error fetching data: ', error);
             });
     }, [active]);
+
+    useEffect(() => {
+        fetch('http://localhost:8080/customer/allWithVehicles')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setCustomer(data);
+            })
+            .catch(error => {
+                console.error('Error fetching customers:', error);
+            })
+    }, []);
 
     const columns = [
         { field: "orderId", headerName: "ID" },
@@ -55,6 +94,74 @@ const Order = () => {
             `${order.customer.vehicles[0].make} ${order.customer.vehicles[0].model} (${order.customer.vehicles[0].year}) - ${order.customer.vehicles[0].licensePlate}` :
             "N/A"
     }));
+
+    const handleAddOrder = () => {
+        setOpenAddDialog(true);
+    };
+
+    const handleCloseAddDialog = () => {
+        setOpenAddDialog(false);
+    };
+
+    const handleCustomerChange = (event) => {
+        const customerId = event.target.value;
+        if (customerId === 'new') {
+            setOpenAddDialog(false);
+            setOpenAddCustomer(true);
+        } else {
+            const selectedCustomer = customer.find(customer => customer.customerId === parseInt(customerId))
+            setFormData({
+                ...formData,
+                selectedCustomer: selectedCustomer,
+                selectedVehicle: '',
+            });
+        }
+    };
+
+    const handleVehicleChange = (event) => {
+        const vehicleId = event.target.value;
+        if (vehicleId === 'new') {
+            setOpenAddDialog(false);
+            setOpenAddVehicle(true);
+        } else {
+            setFormData({
+                ...formData,
+                selectedVehicle: vehicleId
+            });
+        }
+    };
+
+    // this should work and add the customer 
+    const handleAddCustomerSubmit = () => {
+        fetch('http://localhost:8080/customer/createOrUpdate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newCustomer),
+        })
+            .then(response => response.json())
+            .then(data => {
+                setCustomer([...customer, data]);
+                setOpenAddCustomer(false);
+                setOpenAddDialog(true);
+            })
+            .catch(error => {
+                console.error('Error adding customer', error);
+            });
+    };
+
+    // this vehicle might not work, might have to refactor how we define the customer and vehicle relationship
+    // we want customer to have a list of vehicles
+    // we need to create an endpoint for this, might have to remove vehicle in the json order response
+
+    const handleAddVehicleSubmit = () => {
+
+    }
+
+
+
+
 
     return (
         <Box>
@@ -92,7 +199,6 @@ const Order = () => {
                 </Grid>
             </Grid>
             <Box
-                // m="40px 0 0 0"
                 height="75vh"
                 sx={{
                     "& .MuiDataGrid-root": {
@@ -126,6 +232,159 @@ const Order = () => {
                     getRowId={(row) => row.orderId}
                 />
             </Box>
+            <Button variant="contained" color="primary" onClick={handleAddOrder}>
+                Add New Order
+            </Button>
+            <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
+                <DialogTitle>Add New Order</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Order Name"
+                        type="text"
+                        fullWidth
+                        value={formData.orderName}
+                        onChange={(event) => setFormData({ ...formData, orderName: event.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Order Description"
+                        type="text"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={formData.orderDescription}
+                        onChange={(event) => setFormData({ ...formData, orderDescription: event.target.value })}
+                    />
+                    <FormControl fullWidth>
+                        <InputLabel>Customer</InputLabel>
+                        <Select value={formData.selectedCustomer ? formData.selectedCustomer.customerId : ''} onChange={handleCustomerChange}>
+                            {customer.map((customer) => (
+                                <MenuItem key={customer.customerId} value={customer.customerId}>
+                                    {customer.name}
+                                </MenuItem>
+                            ))}
+                            <MenuItem value="new">Add New Customer</MenuItem>
+                        </Select>
+                    </FormControl>
+                    {formData.selectedCustomer && (
+                        <FormControl fullWidth>
+                            <InputLabel>Vehicle</InputLabel>
+                            <Select value={formData.selectedVehicle || ''} onChange={handleVehicleChange}>
+                                {formData.selectedCustomer.vehicles.map((vehicle) => (
+                                    <MenuItem key={vehicle.vehicleId} value={vehicle.vehicleId}>
+                                        {`${vehicle.make} ${vehicle.model} (${vehicle.year}) - ${vehicle.licensePlate}`}
+                                    </MenuItem>
+                                ))}
+                                <MenuItem value="new">Add New Vehicle</MenuItem>
+                            </Select>
+                        </FormControl>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseAddDialog} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleCloseAddDialog} color="primary">
+                        Add
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={openAddCustomer} onClose={() => setOpenAddCustomer(false)}>
+                <DialogTitle>Add New Customer</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Name"
+                        type="text"
+                        fullWidth
+                        value={newCustomer.name}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Phone Number"
+                        type="text"
+                        fullWidth
+                        value={newCustomer.phoneNumber}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, phoneNumber: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Email"
+                        type="email"
+                        fullWidth
+                        value={newCustomer.email}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Address"
+                        type="text"
+                        fullWidth
+                        value={newCustomer.address}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenAddCustomer(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleAddCustomerSubmit} color="primary">
+                        Add Customer
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={openAddVehicle} onClose={() => setOpenAddVehicle(false)}>
+                <DialogTitle>Add New Vehicle</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Make"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.make}
+                        onChange={(e) => setNewVehicle({ ...newVehicle, make: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Model"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.model}
+                        onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Year"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.year}
+                        onChange={(e) => setNewVehicle({ ...newVehicle, year: e.target.value })}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="License Plate"
+                        type="text"
+                        fullWidth
+                        value={newVehicle.licensePlate}
+                        onChange={(e) => setNewVehicle({ ...newVehicle, licensePlate: e.target.value })}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenAddVehicle(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleAddVehicleSubmit} color="primary">
+                        Add Vehicle
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
