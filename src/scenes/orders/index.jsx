@@ -14,6 +14,8 @@ const Order = () => {
     const [formData, setFormData] = useState({
         orderName: '',
         orderDescription: '',
+        price: '',
+        cost: '',
         selectedCustomer: '',
         selectedVehicle: '',
     });
@@ -110,6 +112,7 @@ const Order = () => {
             setOpenAddCustomer(true);
         } else {
             const selectedCustomer = customer.find(customer => customer.customerId === parseInt(customerId))
+            console.log(selectedCustomer);
             setFormData({
                 ...formData,
                 selectedCustomer: selectedCustomer,
@@ -142,7 +145,8 @@ const Order = () => {
         })
             .then(response => response.json())
             .then(data => {
-                setCustomer([...customer, data]);
+                const newCustomerData = { ...data, vehicles: data.vehicles || [] };
+                setCustomer([...customer, newCustomerData]);
                 setOpenAddCustomer(false);
                 setOpenAddDialog(true);
             })
@@ -157,6 +161,44 @@ const Order = () => {
 
     const handleAddVehicleSubmit = () => {
 
+        const customerId = formData.selectedCustomer.customerId;
+        const vehicleData = { ...newVehicle, customerId };
+
+        fetch("http://localhost:8080/vehicles", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(vehicleData),
+        })
+            // still doesn't work 
+
+            // doesn't go through 
+            .then((response) => response.json())
+            .then((data) => {
+                const customerId = formData.selectedCustomer.customerId;
+                const updatedCustomers = customer.map((cust) =>
+                    cust.customerId === customerId
+                        ? { ...cust, vehicles: [...cust.vehicles, data] }
+                        : cust
+                );
+                setCustomer(updatedCustomers);
+                setFormData((prevData) => ({
+                    ...prevData,
+                    selectedCustomer: updatedCustomers.find(cust => cust.customerId === customerId)
+                }));
+                setOpenAddVehicle(false);
+                setOpenAddDialog(true);
+            })
+            .catch((error) => {
+                console.error("Error adding vehicle", error);
+            });
+
+    };
+
+    const handleAddOrderSubmit = () => {
+
+        const orderData = { ...formData, }
     }
 
 
@@ -256,6 +298,26 @@ const Order = () => {
                         rows={4}
                         value={formData.orderDescription}
                         onChange={(event) => setFormData({ ...formData, orderDescription: event.target.value })}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Price"
+                        type="text"
+                        fullWidth
+                        rows={4}
+                        value={formData.price}
+                        onChange={(event) => setFormData({ ...formData, price: event.target.value })}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Estimated Cost"
+                        type="text"
+                        fullWidth
+                        rows={4}
+                        value={formData.cost}
+                        onChange={(event) => setFormData({ ...formData, cost: event.target.value })}
                     />
                     <FormControl fullWidth>
                         <InputLabel>Customer</InputLabel>
