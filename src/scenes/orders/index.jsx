@@ -11,6 +11,7 @@ const Order = () => {
     const [active, setActive] = useState(true);
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [customer, setCustomer] = useState([]);
+    // const [vehicle, setVehicle] = useState([]);
     const [formData, setFormData] = useState({
         orderName: '',
         orderDescription: '',
@@ -127,9 +128,10 @@ const Order = () => {
             setOpenAddDialog(false);
             setOpenAddVehicle(true);
         } else {
+            const selectedVehicle = formData.selectedCustomer.vehicles.find(vehicle => vehicle.vehicleId === parseInt(vehicleId));
             setFormData({
                 ...formData,
-                selectedVehicle: vehicleId
+                selectedVehicle: selectedVehicle
             });
         }
     };
@@ -197,13 +199,45 @@ const Order = () => {
     };
 
     const handleAddOrderSubmit = () => {
+        const orderData = {
+            orderName: formData.orderName,
+            orderDescription: formData.orderDescription,
+            price: formData.price,
+            cost: formData.cost,
+            status: false, // assuming status is false for a new order
+            customer: {
+                customerId: formData.selectedCustomer.customerId,
+                phoneNumber: formData.selectedCustomer.phoneNumber,
+                name: formData.selectedCustomer.name,
+                email: formData.selectedCustomer.email,
+                address: formData.selectedCustomer.address,
+                vehicles: formData.selectedCustomer.vehicles,
+            },
+            vehicles: formData.selectedVehicle
+        };
 
-        const orderData = { ...formData, }
-    }
-
-
-
-
+        fetch("http://localhost:8080/orders", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+        })
+            .then(() => {
+                setFormData({
+                    orderName: '',
+                    orderDescription: '',
+                    price: '',
+                    cost: '',
+                    selectedCustomer: null,
+                    selectedVehicle: null,
+                });
+                setOpenAddDialog(false);
+            })
+            .catch((error) => {
+                console.error("Error adding order", error);
+            });
+    };
 
     return (
         <Box>
@@ -348,7 +382,7 @@ const Order = () => {
                     <Button onClick={handleCloseAddDialog} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={handleCloseAddDialog} color="primary">
+                    <Button onClick={handleAddOrderSubmit} color="primary">
                         Add
                     </Button>
                 </DialogActions>
