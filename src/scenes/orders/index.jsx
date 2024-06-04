@@ -367,7 +367,7 @@ const Order = () => {
                     {formData.selectedCustomer && (
                         <FormControl fullWidth>
                             <InputLabel>Vehicle</InputLabel>
-                            <Select value={formData.selectedVehicle || ''} onChange={handleVehicleChange}>
+                            <Select value={formData.selectedVehicle ? formData.selectedVehicle.vehicleId : ''} onChange={handleVehicleChange}>
                                 {formData.selectedCustomer.vehicles.map((vehicle) => (
                                     <MenuItem key={vehicle.vehicleId} value={vehicle.vehicleId}>
                                         {`${vehicle.make} ${vehicle.model} (${vehicle.year}) - ${vehicle.licensePlate}`}
