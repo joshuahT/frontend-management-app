@@ -223,7 +223,11 @@ const Order = () => {
             },
             body: JSON.stringify(orderData),
         })
-            .then(() => {
+            .then(response => response.json())
+            .then((newOrder) => {
+
+                SetOrders(prevOrders => [...prevOrders, newOrder]);
+
                 setFormData({
                     orderName: '',
                     orderDescription: '',
