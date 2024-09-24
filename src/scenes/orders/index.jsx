@@ -2,6 +2,7 @@ import { Box, Typography, useTheme, Grid, Button, Dialog, DialogTitle, DialogCon
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
+import { Switch } from "@mui/material";
 import React, { useState, useEffect } from 'react';
 
 const Order = () => {
@@ -74,20 +75,28 @@ const Order = () => {
         { field: "orderId", headerName: "ID" },
         { field: "orderName", headerName: "Order Name" },
         { field: "orderDescription", headerName: "Order Description" },
-        { field: "status", headerName: "Status" },
         { field: "price", headerName: "Price" },
         { field: "cost", headerName: "Cost" },
         { field: "customerName", headerName: "Customer Name" },
         { field: "phoneNumber", headerName: "Phone number" },
         { field: "email", headerName: "Email" },
-        { field: "vehicleDetails", headerName: " Vehicle Details" }
+        { field: "vehicleDetails", headerName: " Vehicle Details" },
+        {
+            field: "status", headerName: "Active/Past", width: 130, renderCell: (params) => (
+                <Switch
+                    checked={!params.row.status} // Assuming false = active, true = past
+                    onChange={() => handleStatusToggle(params.row.orderId, !params.row.status)}
+                    color="primary"
+                />
+            )
+        },
     ];
 
     const rows = Orders.map(order => ({
         orderId: order.orderId,
         orderName: order.orderName,
         orderDescription: order.orderDescription,
-        status: order.status ? "InActive" : "Active",
+        status: order.status ? false : true,
         price: order.price || "N/A",
         cost: order.cost || "N/A",
         customerName: order.customer ? order.customer.name : "N/A",
@@ -135,8 +144,6 @@ const Order = () => {
             });
         }
     };
-
-    // this should work and add the customer 
     const handleAddCustomerSubmit = () => {
         fetch('http://localhost:8080/customer/createOrUpdate', {
             method: 'POST',
@@ -157,10 +164,6 @@ const Order = () => {
             });
     };
 
-    // this vehicle might not work, might have to refactor how we define the customer and vehicle relationship
-    // we want customer to have a list of vehicles
-    // we need to create an endpoint for this, might have to remove vehicle in the json order response
-
     const handleAddVehicleSubmit = () => {
 
         const customerId = formData.selectedCustomer.customerId;
@@ -173,9 +176,6 @@ const Order = () => {
             },
             body: JSON.stringify(vehicleData),
         })
-            // still doesn't work 
-
-            // doesn't go through 
             .then((response) => response.json())
             .then((data) => {
                 const customerId = formData.selectedCustomer.customerId;
@@ -204,7 +204,7 @@ const Order = () => {
             orderDescription: formData.orderDescription,
             price: formData.price,
             cost: formData.cost,
-            status: false, // assuming status is false for a new order
+            status: false,
             customer: {
                 customerId: formData.selectedCustomer.customerId,
                 phoneNumber: formData.selectedCustomer.phoneNumber,
@@ -240,6 +240,39 @@ const Order = () => {
             })
             .catch((error) => {
                 console.error("Error adding order", error);
+            });
+    };
+
+    const handleStatusToggle = (orderId, status) => {
+        const newStatus = !status;  // If true (past), make it false (active), and vice versa
+
+        fetch(`http://localhost:8080/orders/${orderId}/update-status?newStatus=${newStatus}`, {
+            method: "PUT",
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Error updating order status');
+                }
+                // Try to parse the response as JSON, but if it fails, handle it as plain text
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (err) {
+                        return text;  // In case of non-JSON response (like a success message)
+                    }
+                });
+            })
+            .then((data) => {
+                console.log('Response from server:', data);
+                // Update the order status in the frontend (even for a success message)
+                SetOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order.orderId === orderId ? { ...order, status: newStatus } : order
+                    )
+                );
+            })
+            .catch((error) => {
+                console.error("Failed to update order status:", error);
             });
     };
 
