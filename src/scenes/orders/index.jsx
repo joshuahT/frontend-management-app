@@ -36,6 +36,7 @@ const Order = () => {
 
     const [openAddCustomer, setOpenAddCustomer] = useState(false);
     const [openAddVehicle, setOpenAddVehicle] = useState(false);
+    const [refreshCustomers, setRefreshCustomers] = useState(false);
 
     useEffect(() => {
         const endpoint = active ? 'http://localhost:8080/orders/active' : 'http://localhost:8080/orders/past';
@@ -69,7 +70,7 @@ const Order = () => {
             .catch(error => {
                 console.error('Error fetching customers:', error);
             })
-    }, []);
+    }, [refreshCustomers]);
 
     const columns = [
         { field: "orderId", headerName: "ID" },
@@ -158,6 +159,7 @@ const Order = () => {
                 setCustomer([...customer, newCustomerData]);
                 setOpenAddCustomer(false);
                 setOpenAddDialog(true);
+                setRefreshCustomers((prev) => !prev);
             })
             .catch(error => {
                 console.error('Error adding customer', error);
