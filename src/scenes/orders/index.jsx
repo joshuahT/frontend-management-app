@@ -87,7 +87,19 @@ const Order = () => {
                 <Switch
                     checked={!params.row.status} // Assuming false = active, true = past
                     onChange={() => handleStatusToggle(params.row.orderId, !params.row.status)}
-                    color="primary"
+                    sx={{
+                        "& .MuiSwitch-thumb": {
+                            backgroundColor: params.row.status ? "#4cceac" : "#db4f4a", // Green for Active, Red for Past
+                        },
+                        "& .MuiSwitch-track": {
+                            backgroundColor: params.row.status ? "#2e7c67" : "#af3f3b", // Darker shade for contrast
+                            opacity: 1, // Ensure visibility
+                        },
+                        "& .Mui-checked + .MuiSwitch-track": {
+                            backgroundColor: "#af3f3b", // Green Accent when Active
+                            opacity: 1, // Prevent MUI opacity override
+                        },
+                    }}
                 />
             )
         },
@@ -347,7 +359,12 @@ const Order = () => {
                     getRowId={(row) => row.orderId}
                 />
             </Box>
-            <Button variant="contained" color="primary" onClick={handleAddOrder}>
+            <Button variant="contained" color="primary" onClick={handleAddOrder} sx={{
+                backgroundColor: "#4cceac", // Apply the custom background color
+                "&:hover": {
+                    backgroundColor: "#3da58a", // Optional: Change color on hover
+                }
+            }}>
                 Add New Order
             </Button>
             <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
