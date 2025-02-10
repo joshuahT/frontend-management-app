@@ -362,7 +362,7 @@ const Order = () => {
             <Button variant="contained" color="primary" onClick={handleAddOrder} sx={{
                 backgroundColor: "#4cceac", // Apply the custom background color
                 "&:hover": {
-                    backgroundColor: "#3da58a", // Optional: Change color on hover
+                    backgroundColor: "#3da58a",
                 }
             }}>
                 Add New Order
