@@ -12,7 +12,6 @@ const Order = () => {
     const [active, setActive] = useState(true);
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [customer, setCustomer] = useState([]);
-    // const [vehicle, setVehicle] = useState([]);
     const [formData, setFormData] = useState({
         orderName: '',
         orderDescription: '',
@@ -103,6 +102,22 @@ const Order = () => {
                 />
             )
         },
+        {
+            field: "edit", headerName: "  Edit", width: 100, renderCell: () => (
+                <Button color="primary"
+                    variant="contained"
+                    sx={{
+                        backgroundColor: "#4cceac", // Apply the custom background color
+                        "&:hover": {
+                            backgroundColor: "#3da58a",
+                        }
+                    }}
+                >
+                    Edit
+                </Button>
+
+            )
+        }
     ];
 
     const rows = Orders.map(order => ({
