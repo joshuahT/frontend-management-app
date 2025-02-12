@@ -103,7 +103,7 @@ const Order = () => {
             )
         },
         {
-            field: "edit", headerName: "  Edit", width: 100, renderCell: () => (
+            field: "edit", headerName: "   Edit", width: 100, renderCell: () => (
                 <Button color="primary"
                     variant="contained"
                     sx={{
@@ -357,7 +357,7 @@ const Order = () => {
                         borderBottom: "none",
                     },
                     "& .MuiDataGrid-virtualScroller": {
-                        // backgroundColor: colors.primary[400],
+                        backgroundColor: colors.primary[400],
                     },
                     "& .MuiDataGrid-footerContainer": {
                         borderTop: "none",
@@ -450,10 +450,20 @@ const Order = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseAddDialog} color="primary">
+                    <Button onClick={handleCloseAddDialog} color="primary" variant="contained" sx={{
+                        backgroundColor: "#db4f4a", // Apply the custom background color
+                        "&:hover": {
+                            backgroundColor: "#af3f3b",
+                        }
+                    }}>
                         Cancel
                     </Button>
-                    <Button onClick={handleAddOrderSubmit} color="primary">
+                    <Button onClick={handleAddOrderSubmit} color="primary" variant="contained" sx={{
+                        backgroundColor: "#4cceac", // Apply the custom background color
+                        "&:hover": {
+                            backgroundColor: "#3da58a",
+                        }
+                    }}>
                         Add
                     </Button>
                 </DialogActions>
