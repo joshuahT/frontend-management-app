@@ -447,10 +447,20 @@ const Order = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseEditOrder} color="secondary">
+                    <Button onClick={handleCloseEditOrder} color="primary" variant="contained" sx={{
+                        backgroundColor: "#db4f4a", // Apply the custom background color
+                        "&:hover": {
+                            backgroundColor: "#af3f3b",
+                        }
+                    }}>
                         Cancel
                     </Button>
-                    <Button onClick={handleUpdateOrder} color="primary">
+                    <Button onClick={handleUpdateOrder} color="primary" variant="contained" sx={{
+                        backgroundColor: "#4cceac", // Apply the custom background color
+                        "&:hover": {
+                            backgroundColor: "#3da58a",
+                        }
+                    }}>
                         Save Changes
                     </Button>
                 </DialogActions>
