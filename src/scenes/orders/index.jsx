@@ -8,9 +8,11 @@ import React, { useState, useEffect } from 'react';
 const Order = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const [Orders, SetOrders] = useState([]);
+    const [Orders, SetOrders] = useState([]); // this for all orders
+    const [selectedOrder, setSelectedOrder] = useState(null);
     const [active, setActive] = useState(true);
     const [openAddDialog, setOpenAddDialog] = useState(false);
+    const [openEditDialog, setOpenEditDialog] = useState(false);
     const [customer, setCustomer] = useState([]);
     const [formData, setFormData] = useState({
         orderName: '',
@@ -103,9 +105,10 @@ const Order = () => {
             )
         },
         {
-            field: "edit", headerName: "   Edit", width: 100, renderCell: () => (
+            field: "edit", headerName: "   Edit", width: 100, renderCell: (params) => (
                 <Button color="primary"
                     variant="contained"
+                    onClick={() => handleEditOrder(params.row)} // make function handleEditOrder, we checked that the params.row gives us the selected order when clicked
                     sx={{
                         backgroundColor: "#4cceac", // Apply the custom background color
                         "&:hover": {
@@ -134,6 +137,17 @@ const Order = () => {
             `${order.customer.vehicles[0].make} ${order.customer.vehicles[0].model} (${order.customer.vehicles[0].year}) - ${order.customer.vehicles[0].licensePlate}` :
             "N/A"
     }));
+
+    const handleEditOrder = (order) => {
+        // selectedOrder is going to be used in the dialog section and the save changes when we make that request aswell
+        setSelectedOrder(order);
+        setOpenEditDialog(true);
+        // console.log(selectedOrder); this worked 
+    }
+
+    const handleCloseEditOrder = () => {
+        setOpenEditDialog(false);
+    }
 
     const handleAddOrder = () => {
         setOpenAddDialog(true);
@@ -273,6 +287,7 @@ const Order = () => {
     };
 
     const handleStatusToggle = (orderId, status) => {
+
         const newStatus = !status;  // If true (past), make it false (active), and vice versa
 
         fetch(`http://localhost:8080/orders/${orderId}/update-status?newStatus=${newStatus}`, {
@@ -304,6 +319,10 @@ const Order = () => {
                 console.error("Failed to update order status:", error);
             });
     };
+
+    const handleUpdateOrder = () => {
+
+    }
 
     return (
         <Box>
@@ -382,8 +401,63 @@ const Order = () => {
             }}>
                 Add New Order
             </Button>
+
+            <Dialog open={openEditDialog} onClose={handleCloseEditOrder}>
+                <DialogTitle>Edit Order</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Order Name"
+                        type="text"
+                        fullWidth
+                        value={selectedOrder?.orderName || ''} // option chaining, checks if selectedOrder exist if not then instead of throwing Error it will be undefined 
+                        onChange={(event) => setSelectedOrder({ ...selectedOrder, orderName: event.target.value })} // everything in selected order is the same, but changes are made to order name 
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Order Description"
+                        type="text"
+                        fullWidth
+                        multiline
+                        rows={3}
+                        value={selectedOrder?.orderDescription || ""}
+                        onChange={(e) =>
+                            setSelectedOrder({ ...selectedOrder, orderDescription: e.target.value })
+                        }
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Price"
+                        type="text"
+                        fullWidth
+                        value={selectedOrder?.price || ""}
+                        onChange={(e) =>
+                            setSelectedOrder({ ...selectedOrder, price: e.target.value })
+                        }
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Cost"
+                        type="text"
+                        fullWidth
+                        value={selectedOrder?.cost || ""}
+                        onChange={(e) =>
+                            setSelectedOrder({ ...selectedOrder, cost: e.target.value })
+                        }
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseEditOrder} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleUpdateOrder} color="primary">
+                        Save Changes
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
-                <DialogTitle>Add New Order</DialogTitle>
+                <DialogTitle> Add Order</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
