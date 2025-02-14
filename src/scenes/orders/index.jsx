@@ -321,8 +321,34 @@ const Order = () => {
     };
 
     const handleUpdateOrder = () => {
-
-    }
+        fetch(`http://localhost:8080/orders/${selectedOrder.orderId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(selectedOrder),
+        })
+            .then((response) => {
+                // console.log(response);
+                if (!response.ok) {
+                    throw new Error("Couldn't Update Order")
+                }
+                return response.json();
+            })
+            .then((updatedOrder) => {
+                console.log(updatedOrder);
+                // Update the local state
+                SetOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order.orderId === updatedOrder.orderId ? updatedOrder : order
+                    )
+                );
+                setOpenEditDialog(false);
+            })
+            .catch((error) => {
+                console.error("Error updating order:", error);
+            });
+    };
 
     return (
         <Box>
