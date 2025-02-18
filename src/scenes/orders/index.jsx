@@ -138,12 +138,12 @@ const Order = () => {
             "N/A"
     }));
 
-    const handleEditOrder = (order) => {
-        // selectedOrder is going to be used in the dialog section and the save changes when we make that request aswell
-        setSelectedOrder(order);
+    const handleEditOrder = (row) => {
+        const fullOrder = Orders.find(order => order.orderId === row.orderId); // Find full object
+        console.log("Full Order Data:", fullOrder); // Debugging
+        setSelectedOrder(fullOrder || {}); // Ensure we pass the full object
         setOpenEditDialog(true);
-        // console.log(selectedOrder); this worked 
-    }
+    };
 
     const handleCloseEditOrder = () => {
         setOpenEditDialog(false);
@@ -321,6 +321,7 @@ const Order = () => {
     };
 
     const handleUpdateOrder = () => {
+        console.log(selectedOrder)
         fetch(`http://localhost:8080/orders/${selectedOrder.orderId}`, {
             method: "PUT",
             headers: {
@@ -333,7 +334,7 @@ const Order = () => {
                 if (!response.ok) {
                     throw new Error("Couldn't Update Order")
                 }
-                return response.json();
+                return response;
             })
             .then((updatedOrder) => {
                 console.log(updatedOrder);
@@ -471,6 +472,30 @@ const Order = () => {
                             setSelectedOrder({ ...selectedOrder, cost: e.target.value })
                         }
                     />
+                    {/* Display Customer (Read-Only) */}
+                    <TextField
+                        margin="dense"
+                        label="Customer"
+                        type="text"
+                        fullWidth
+                        value={selectedOrder?.customer?.name || 'N/A'}
+                        InputProps={{ readOnly: true }}
+                    />
+
+                    {/* Display Vehicle (Read-Only) */}
+                    <TextField
+                        margin="dense"
+                        label="Vehicle"
+                        type="text"
+                        fullWidth
+                        value={
+                            selectedOrder?.vehicle
+                                ? `${selectedOrder.vehicle.make} ${selectedOrder.vehicle.model} (${selectedOrder.vehicle.year}) - ${selectedOrder.vehicle.licensePlate}`
+                                : 'N/A'
+                        }
+                        InputProps={{ readOnly: true }}
+                    />
+
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEditOrder} color="primary" variant="contained" sx={{
