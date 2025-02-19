@@ -133,9 +133,9 @@ const Order = () => {
         customerName: order.customer ? order.customer.name : "N/A",
         phoneNumber: order.customer ? order.customer.phoneNumber : "N/A",
         email: order.customer ? order.customer.email : "N/A",
-        vehicleDetails: order.customer && order.customer.vehicles.length > 0 ?
-            `${order.customer.vehicles[0].make} ${order.customer.vehicles[0].model} (${order.customer.vehicles[0].year}) - ${order.customer.vehicles[0].licensePlate}` :
-            "N/A"
+        vehicleDetails: order.vehicle
+            ? `${order.vehicle.make} ${order.vehicle.model} (${order.vehicle.year}) - ${order.vehicle.licensePlate}`
+            : "N/A"
     }));
 
     const handleEditOrder = (row) => {
@@ -211,7 +211,6 @@ const Order = () => {
 
         const customerId = formData.selectedCustomer.customerId;
         const vehicleData = { ...newVehicle, customerId };
-
         console.log(vehicleData);
 
         fetch("http://localhost:8080/vehicles", {
