@@ -212,6 +212,8 @@ const Order = () => {
         const customerId = formData.selectedCustomer.customerId;
         const vehicleData = { ...newVehicle, customerId };
 
+        console.log(vehicleData);
+
         fetch("http://localhost:8080/vehicles", {
             method: "POST",
             headers: {
@@ -256,8 +258,11 @@ const Order = () => {
                 address: formData.selectedCustomer.address,
                 vehicles: formData.selectedCustomer.vehicles,
             },
-            vehicles: formData.selectedVehicle
+            vehicle: formData.selectedVehicle
         };
+
+        console.log(orderData);
+
 
         fetch("http://localhost:8080/orders", {
             method: "POST",
@@ -321,7 +326,7 @@ const Order = () => {
     };
 
     const handleUpdateOrder = () => {
-        console.log(selectedOrder)
+        console.log(JSON.stringify(selectedOrder));
         fetch(`http://localhost:8080/orders/${selectedOrder.orderId}`, {
             method: "PUT",
             headers: {
@@ -337,7 +342,7 @@ const Order = () => {
                 return response;
             })
             .then((updatedOrder) => {
-                console.log(updatedOrder);
+                // console.log(updatedOrder);
                 // Update the local state
                 SetOrders((prevOrders) =>
                     prevOrders.map((order) =>
