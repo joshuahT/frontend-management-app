@@ -243,6 +243,7 @@ const Order = () => {
     };
 
     const handleAddOrderSubmit = () => {
+        console.log(formData.selectedVehicle);
         const orderData = {
             orderName: formData.orderName,
             orderDescription: formData.orderDescription,
@@ -257,7 +258,14 @@ const Order = () => {
                 address: formData.selectedCustomer.address,
                 vehicles: formData.selectedCustomer.vehicles,
             },
-            vehicle: formData.selectedVehicle
+            vehicle: {
+                customerId: formData.selectedCustomer.customerId,
+                licensePlate: formData.selectedVehicle.licensePlate,
+                make: formData.selectedVehicle.make,
+                model: formData.selectedVehicle.model,
+                year: formData.selectedVehicle.year,
+                vehicleId: formData.selectedVehicle.vehicleId,
+            }
         };
 
         console.log(orderData);
