@@ -29,10 +29,12 @@ const Order = () => {
         address: '',
     });
     const [newVehicle, setNewVehicle] = useState({
+        customerId: '',
         make: '',
         model: '',
         year: '',
         licensePlate: '',
+        vehicleId: '',
     })
 
     const [openAddCustomer, setOpenAddCustomer] = useState(false);
@@ -141,6 +143,7 @@ const Order = () => {
     const handleEditOrder = (row) => {
         const fullOrder = Orders.find(order => order.orderId === row.orderId); // Find full object
         console.log("Full Order Data:", fullOrder); // Debugging
+        console.log(Orders);
         setSelectedOrder(fullOrder || {}); // Ensure we pass the full object
         setOpenEditDialog(true);
     };
