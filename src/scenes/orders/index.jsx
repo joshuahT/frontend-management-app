@@ -107,7 +107,7 @@ const Order = () => {
             )
         },
         {
-            field: "edit", headerName: "   Edit", width: 100, renderCell: (params) => (
+            field: "edit", headerName: "Edit", width: 100, renderCell: (params) => (
                 <Button color="primary"
                     variant="contained"
                     onClick={() => handleEditOrder(params.row)} // make function handleEditOrder, we checked that the params.row gives us the selected order when clicked
@@ -122,7 +122,24 @@ const Order = () => {
                 </Button>
 
             )
-        }
+        },
+        {
+            field: "sendEmail", headerName: "Send Notification", width: 200, renderCell: (params) => (
+                <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={() => handleNotification(params.row)}
+                    sx={{
+                        backgroundColor: "#4cceac", // Apply the custom background color
+                        "&:hover": {
+                            backgroundColor: "#3da58a",
+                        }
+                    }}
+                >
+                    Send Notification
+                </Button>
+            )
+        },
     ];
 
     const rows = Orders.map(order => ({
@@ -140,10 +157,14 @@ const Order = () => {
             : "N/A"
     }));
 
+    const handleNotification = (row) => {
+        console.log(row.email);
+
+    }
+
     const handleEditOrder = (row) => {
         const fullOrder = Orders.find(order => order.orderId === row.orderId); // Find full object
         console.log("Full Order Data:", fullOrder); // Debugging
-        console.log(Orders);
         setSelectedOrder(fullOrder || {}); // Ensure we pass the full object
         setOpenEditDialog(true);
     };
