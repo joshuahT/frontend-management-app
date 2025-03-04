@@ -160,6 +160,14 @@ const Order = () => {
     const handleNotification = (row) => {
         console.log(row.email);
 
+        fetch('http://localhost:8080/api/email/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(row.email),
+        })
+
     }
 
     const handleEditOrder = (row) => {
