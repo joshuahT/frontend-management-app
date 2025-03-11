@@ -140,6 +140,24 @@ const Order = () => {
                 </Button>
             )
         },
+        {
+            field: "delete", headerName: "Delete", width: 200, renderCell: (params) => (
+                <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={() => handleDelete(params.row)}
+                    sx={{
+                        backgroundColor: "#db4f4a", // Apply the custom background color
+                        "&:hover": {
+                            backgroundColor: "#af3f3b",
+                        }
+                    }}
+                >
+                    Delete
+                </Button>
+
+            )
+        }
     ];
 
     const rows = Orders.map(order => ({
@@ -156,6 +174,10 @@ const Order = () => {
             ? `${order.vehicle.make} ${order.vehicle.model} (${order.vehicle.year}) - ${order.vehicle.licensePlate}`
             : "N/A"
     }));
+
+    const handleDelete = (row) => {
+
+    }
 
     const handleNotification = (row) => {
         console.log(row.email);
