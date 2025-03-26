@@ -177,6 +177,16 @@ const Order = () => {
 
     const handleDelete = (row) => {
 
+        console.log(row.orderId);
+
+        fetch(`http://localhost:8080/orders/${row.orderId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(row.email),
+        })
+
     }
 
     const handleNotification = (row) => {
